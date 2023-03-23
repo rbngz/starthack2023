@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:html';
 import 'dart:ui';
 
@@ -17,11 +18,13 @@ class ChatBoxState extends State<ChatBox> {
     Size screenSize = MediaQuery.of(context).size;
     double width = screenSize.width * 0.22;
     double height = screenSize.height * 0.5;
-    List<Tweet> tweets = [Tweet()];
+    List<Tweet> tweets = [];
 
     final channel = WebSocketChannel.connect(
-      Uri.parse('wss://echo.websocket.events'),
+      Uri.parse('wss://starthack2023-do2kz2npza-uc.a.run.app/ws'),
     );
+    channel.sink.add('Hello!');
+
     return Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.0),
@@ -69,9 +72,11 @@ class ChatBoxState extends State<ChatBox> {
                                   stream: channel.stream,
                                   initialData: tweets,
                                   builder: (ctx, snapshot) {
-                                    print(snapshot.data);
-                                    tweets.add(Tweet());
-                                    print(tweets.length);
+                                    if (!snapshot.data.isEmpty) {
+                                      tweets.add(Tweet(
+                                          json.decode(snapshot.data)["message"]
+                                              ["message"]));
+                                    }
                                     return ListView.separated(
                                         separatorBuilder: (context, index) =>
                                             SizedBox(
@@ -90,6 +95,9 @@ class ChatBoxState extends State<ChatBox> {
 }
 
 class Tweet extends StatelessWidget {
+  final String message;
+  Tweet(this.message);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -99,7 +107,7 @@ class Tweet extends StatelessWidget {
           borderRadius: BorderRadius.circular(6),
           border: Border.all(color: Colors.white70)),
       child: Text(
-        'Entry A',
+        message,
         style: TextStyle(color: Colors.white),
       ),
     );
