@@ -99,22 +99,28 @@ class ConnectionManager:
             await connection.send_text(message)
 
 manager = ConnectionManager()
+
+tweet_service = ArtificialTweetService(time.time())
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    global tweet_service
     await manager.connect(websocket)
     while True:
         await websocket.receive_text()
         start_time = time.time()
         message_manager = MessageManager(start_time)
-        tweet_service = ArtificialTweetService(start_time)
-        while True:
-            message, min, volume = tweet_service.next_tweet()
-            if message is None:
+        try:
+            while True:
+                message, min, volume = tweet_service.next_tweet()
+                if message is None:
+                    await asyncio.sleep(2)
+                    continue
+
+                result_json = message_manager.new_message(message, min, volume)
+                await manager.broadcast(result_json)
+
                 await asyncio.sleep(2)
-                continue
 
-            result_json = message_manager.new_message(message, min, volume)
-            await manager.broadcast(result_json)
-
-            await asyncio.sleep(2)
+        except WebSocketDisconnect:
+            manager.disconnect(websocket)
