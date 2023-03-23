@@ -69,20 +69,21 @@ def read_item(item_id: int, q: Union[str, None] = None):
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    await websocket.receive_text()
-    start_time = time.time()
-    message_manager = MessageManager(start_time)
-    tweet_service = ArtificialTweetService(start_time)
-    
     while True:
-        try: 
-            message, min, volume = tweet_service.next_tweet()
-            if message is None:
-                return
-            
-            result_json = message_manager.new_message(message, min, volume)
-            await websocket.send_text(result_json)  
-            
-            await asyncio.sleep(2)
-        except WebSocketDisconnect:
-            pass
+        await websocket.receive_text()
+        start_time = time.time()
+        message_manager = MessageManager(start_time)
+        tweet_service = ArtificialTweetService(start_time)
+        
+        while True:
+            try: 
+                message, min, volume = tweet_service.next_tweet()
+                if message is None:
+                    return
+                
+                result_json = message_manager.new_message(message, min, volume)
+                await websocket.send_text(result_json)  
+                
+                await asyncio.sleep(2)
+            except WebSocketDisconnect:
+                pass
