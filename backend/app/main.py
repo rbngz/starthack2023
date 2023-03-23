@@ -100,11 +100,17 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-tweet_service = ArtificialTweetService(time.time())
 
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    global tweet_service
+    if tweet_service is not None:
+        if len(tweet_service.messages) == 0:
+            tweet_service = ArtificialTweetService(time.time())
+    else:
+            tweet_service = ArtificialTweetService(time.time())
+
     await manager.connect(websocket)
     while True:
         await websocket.receive_text()
