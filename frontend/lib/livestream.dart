@@ -76,7 +76,7 @@ class _PlayVideoFromNetworkState extends State<PlayVideoFromNetwork> {
   void initState() {
     controller = PodPlayerController(
       playVideoFrom: PlayVideoFrom.youtube(
-        'https://www.youtube.com/watch?v=vhuSuQMpdzo',
+        'https://www.youtube.com/watch?v=UOPgCVEEn5s&t=6s&ab_channel=IIHFWorlds2023',
       ),
     )..initialise();
     super.initState();
