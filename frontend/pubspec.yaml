@@ -69,6 +69,7 @@ flutter:
     - assets/background.png
     - assets/red-yellow-cards.png
     - assets/football.png
+    - assets/clip.mov
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
