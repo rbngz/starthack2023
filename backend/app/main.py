@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 import time
 import asyncio
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -80,10 +80,29 @@ async def post_messages(incoming_message: IncomingMessage):
         Message(incoming_message.message, incoming_message.username))
 
 
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+manager = ConnectionManager()
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     global tweet_service
-    await websocket.accept()
+    await manager.connect(websocket)
     while True:
         await websocket.receive_text()
         start_time = time.time()
@@ -96,6 +115,6 @@ async def websocket_endpoint(websocket: WebSocket):
                 continue
 
             result_json = message_manager.new_message(message, min, volume)
-            await websocket.send_text(result_json)
+            await manager.broadcast(result_json)
 
             await asyncio.sleep(2)
