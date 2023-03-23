@@ -14,7 +14,7 @@ class AggregationInfo:
 class AggregationService:
     def __init__(self, 
                  starttime,
-                 sentiment_running_average_window_size : int = 2):
+                 sentiment_running_average_window_size : int = 5):
         self.starttime = starttime
         self.window_size = sentiment_running_average_window_size
         self.volume_dict = {}
@@ -43,11 +43,8 @@ class AggregationService:
             
         return sum / len(self.sentiment_cache)
     
-    def aggregate_messages(self, message : Message):
-        # TODO what bucket interval
-        minute_bucket = math.floor((message.timestamp - self.starttime) / 5)
-        volume = self._update_volume_dict(minute_bucket)
+    def aggregate_messages(self, message : Message, min : int, volume : int):
         running_average_sentiment = self._update_running_sentiment(message.sentiment)
-        return AggregationInfo(minute_bucket, volume, running_average_sentiment)
+        return AggregationInfo(min, volume, running_average_sentiment)
         
         
