@@ -1,0 +1,22 @@
+version: "3.6"
+services:
+  frontend-hack:
+    container_name: frontend-hack
+    build:
+      context: "./frontend"
+      dockerfile: "Dockerfile"
+      target: develop-stage
+    ports:
+      - "8080:8080"
+    restart: always
+    volumes:
+      - './frontend:/app'
+    command: /bin/sh -c "yarn serve"
+
+  backend-hack:
+    container_name: backend-hack
+    build:
+      context: "./backend"
+      dockerfile: "Dockerfile"
+    ports:
+      - "9000:80"
