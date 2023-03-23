@@ -4,6 +4,7 @@ import asyncio
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from starlette.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from .tweet_service import ArtificialTweetService
 from .message_manager import MessageManager
 from .message import Message
@@ -18,6 +19,12 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
+
+
+class IncomingMessage(BaseModel):
+    message: str
+    username: str
+
 
 html = """
 <!DOCTYPE html>
@@ -34,7 +41,7 @@ html = """
         <ul id='messages'>
         </ul>
         <script>
-            var ws = new WebSocket("ws://localhost:80/ws");
+            var ws = new WebSocket("ws://localhost:8000/ws");
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
@@ -66,24 +73,29 @@ async def get():
 def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
+
+@app.post("/messages/")
+async def post_messages(incoming_message: IncomingMessage):
+    tweet_service.add_tweet(
+        Message(incoming_message.message, incoming_message.username))
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    global tweet_service
     await websocket.accept()
     while True:
         await websocket.receive_text()
         start_time = time.time()
         message_manager = MessageManager(start_time)
         tweet_service = ArtificialTweetService(start_time)
-        
         while True:
-            try: 
-                message, min, volume = tweet_service.next_tweet()
-                if message is None:
-                    return
-                
-                result_json = message_manager.new_message(message, min, volume)
-                await websocket.send_text(result_json)  
-                
+            message, min, volume = tweet_service.next_tweet()
+            if message is None:
                 await asyncio.sleep(2)
-            except WebSocketDisconnect:
-                pass
+                continue
+
+            result_json = message_manager.new_message(message, min, volume)
+            await websocket.send_text(result_json)
+
+            await asyncio.sleep(2)
