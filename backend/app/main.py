@@ -81,9 +81,8 @@ async def post_messages(incoming_message: IncomingMessage):
 
 
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, chat: bool = False):
-    if chat:
-        global tweet_service
+async def websocket_endpoint(websocket: WebSocket):
+    global tweet_service
     await websocket.accept()
     while True:
         await websocket.receive_text()
