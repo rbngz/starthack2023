@@ -6,7 +6,7 @@ from .message_manager import MessageManager
 messages = [
     {
     "second": 2,
-    "message": "What a goal! #HCC",
+    "message": "That is great! #HCC",
     "username": "pucklover492",
 },
 {
@@ -30,21 +30,12 @@ class ArtificialTweetService:
         self.last_batch = self.start_time
         self.index = 0
     
-    def start_tweeting(self):
-        seconds_elapsed_since_last_batch = time.time() - self.last_batch
-        if seconds_elapsed_since_last_batch > 0:
-            self.last_batch = time.time()
-            seconds_elapsed = time.time() - self.start_time
-            message_json = self.messages[self.index % 2]
-            return_messages = [Message(message_json["message"], message_json["username"])]
-            # while len(self.messages) > 0 and self.messages[0]["second"] < seconds_elapsed:
-            #     message_json = self.messages[]
-            #     message = Message(message_json["message"], message_json["username"])
-            #     return_messages.append(message)
-            
-            return return_messages
+    def next_tweet(self):
+        if len(messages) == 0:
+            return None
         
-        return []
+        message_json = messages.pop(0)
+        return Message(message_json["message"], message_json["username"])
                     
                 
         

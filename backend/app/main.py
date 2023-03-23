@@ -76,9 +76,11 @@ async def websocket_endpoint(websocket: WebSocket):
     
     while True:
         try: 
-            messages = tweet_service.start_tweeting()
-            result_json = message_manager.new_message(messages[0])
-                 
+            message = tweet_service.next_tweet()
+            if message is None:
+                return
+            
+            result_json = message_manager.new_message(message)
             await websocket.send_text(result_json)  
             
             await asyncio.sleep(2)

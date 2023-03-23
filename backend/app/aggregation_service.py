@@ -44,7 +44,8 @@ class AggregationService:
         return sum / len(self.sentiment_cache)
     
     def aggregate_messages(self, message : Message):
-        minute_bucket = math.floor((message.timestamp - self.starttime) / 60)
+        # TODO what bucket interval
+        minute_bucket = math.floor((message.timestamp - self.starttime) / 5)
         volume = self._update_volume_dict(minute_bucket)
         running_average_sentiment = self._update_running_sentiment(message.sentiment)
         return AggregationInfo(minute_bucket, volume, running_average_sentiment)
