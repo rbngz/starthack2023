@@ -12,6 +12,8 @@ services:
     volumes:
       - './frontend:/app'
     command: /bin/sh -c "yarn serve"
+    environment:
+      - BACKEND_API=http://localhost:9000/
 
   backend-hack:
     container_name: backend-hack
