@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:pod_player/pod_player.dart';
 import 'package:video_player/video_player.dart';
 
 class LiveStream extends StatelessWidget {
@@ -26,6 +27,7 @@ class LiveStream extends StatelessWidget {
             child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                 child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
                   width: width,
                   height: height,
                   decoration: BoxDecoration(
@@ -35,7 +37,7 @@ class LiveStream extends StatelessWidget {
                       begin: const Alignment(-0.05, -1),
                       end: const Alignment(0.05, 1),
                       colors: <Color>[
-                        const Color.fromARGB(255, 23, 67, 143).withOpacity(0.3),
+                        const Color.fromARGB(255, 23, 67, 143).withOpacity(0.1),
                         const Color.fromARGB(255, 176, 205, 255)
                             .withOpacity(0.1),
                       ],
@@ -52,71 +54,54 @@ class LiveStream extends StatelessWidget {
                           child: SizedBox(
                               height: height * 0.9,
                               width: width * 0.9,
-                              child: VideoPlayerScreen()),
+                              child: PlayVideoFromNetwork()),
                         )
                       ]),
                 ))));
   }
 }
 
-class VideoPlayerScreen extends StatefulWidget {
-  const VideoPlayerScreen({super.key});
+class PlayVideoFromNetwork extends StatefulWidget {
+  const PlayVideoFromNetwork({Key? key}) : super(key: key);
 
   @override
-  State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
+  State<PlayVideoFromNetwork> createState() => _PlayVideoFromNetworkState();
 }
 
-class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
-  late VideoPlayerController _controller;
-  late Future<void> _initializeVideoPlayerFuture;
+late final PodPlayerController controller;
 
+class _PlayVideoFromNetworkState extends State<PlayVideoFromNetwork> {
+  bool playing = false;
   @override
   void initState() {
+    controller = PodPlayerController(
+      playVideoFrom: PlayVideoFrom.youtube(
+        'https://www.youtube.com/watch?v=vhuSuQMpdzo',
+      ),
+    )..initialise();
     super.initState();
-
-    // Create and store the VideoPlayerController. The VideoPlayerController
-    // offers several different constructors to play videos from assets, files,
-    // or the internet.
-    _controller = VideoPlayerController.network(
-      'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
-    );
-
-    // Initialize the controller and store the Future for later use.
-    _initializeVideoPlayerFuture = _controller.initialize();
-
-    // Use the controller to loop the video.
-    _controller.setLooping(true);
+    controller.addListener(checkVideo);
   }
 
   @override
   void dispose() {
-    // Ensure disposing of the VideoPlayerController to free up resources.
-    _controller.dispose();
-
+    controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _initializeVideoPlayerFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          // If the VideoPlayerController has finished initialization, use
-          // the data it provides to limit the aspect ratio of the video.
-          return AspectRatio(
-            aspectRatio: _controller.value.aspectRatio,
-            // Use the VideoPlayer widget to display the video.
-            child: VideoPlayer(_controller),
-          );
-        } else {
-          // If the VideoPlayerController is still initializing, show a
-          // loading spinner.
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-      },
-    );
+    return PodVideoPlayer(controller: controller);
+  }
+
+  void checkVideo() {
+    // Implement your calls inside these conditions' bodies :
+    if (controller.isVideoPlaying && !playing) {
+      playing = true;
+      print('video playing');
+    } else if (!controller.isVideoPlaying && playing) {
+      playing = false;
+      print("video paused");
+    }
   }
 }
