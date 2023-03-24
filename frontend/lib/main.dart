@@ -48,28 +48,34 @@ class _MyHomePageState extends State<MyHomePage> {
             fit: BoxFit.cover,
           ),
         ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    LiveStream(),
-                    ChatBox(),
-                  ],
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/mysports.png"),
+                  ),
                 ),
-                SizedBox(height: screenSize.height * 0.01),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ChartBox(),
-                  ],
-                )
-              ],
-            ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  LiveStream(),
+                  ChatBox(),
+                ],
+              ),
+              SizedBox(height: screenSize.height * 0.01),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ChartBox(),
+                ],
+              )
+            ],
           ),
         ),
       ),
