@@ -73,9 +73,13 @@ async def get():
 def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
+tweet_service = ArtificialTweetService(time.time())
 
 @app.post("/messages/")
 async def post_messages(incoming_message: IncomingMessage):
+    if incoming_message == "refill":
+        global tweet_service
+        tweet_service = ArtificialTweetService(time.time())
     tweet_service.add_tweet(
         Message(incoming_message.message, incoming_message.username))
 
@@ -104,13 +108,6 @@ manager = ConnectionManager()
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    global tweet_service
-    if tweet_service is not None:
-        if len(tweet_service.messages) == 0:
-            tweet_service = ArtificialTweetService(time.time())
-    else:
-            tweet_service = ArtificialTweetService(time.time())
-
     await manager.connect(websocket)
     while True:
         await websocket.receive_text()

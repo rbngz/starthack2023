@@ -201,13 +201,19 @@ class ArtificialTweetService:
         self.messages = deepcopy(messages)
         self.last_batch = self.start_time
         self.posted_messages = 0
+        self.count = 0
+        self.done = False
 
     def next_tweet(self):
         if len(self.messages) == 0:
+            self.done = True
             return None, None, None
-
-        message_json = self.messages.pop(0)
-        return Message(message_json["message"], message_json["username"]), message_json["min"], message_json["volume"]
+        if not self.done:
+            self.count += 1
+            if self.count % 2 == 0:
+                message_json = self.messages.pop(0)
+                return Message(message_json["message"], message_json["username"]), message_json["min"], message_json["volume"]
+        return None, None, None
 
     def add_tweet(self, message: Message):
         self.posted_messages += 1
