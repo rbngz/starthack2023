@@ -213,6 +213,9 @@ class ArtificialTweetService:
             if self.count % 2 == 0:
                 message_json = self.messages.pop(0)
                 return Message(message_json["message"], message_json["username"]), message_json["min"], message_json["volume"]
+        else:
+            message_json = self.messages.pop(0)
+            return Message(message_json["message"], message_json["username"]), message_json["min"], message_json["volume"]
         return None, None, None
 
     def add_tweet(self, message: Message):
