@@ -77,7 +77,7 @@ tweet_service = ArtificialTweetService(time.time())
 
 @app.post("/messages/")
 async def post_messages(incoming_message: IncomingMessage):
-    if incoming_message == "refill":
+    if incoming_message.message == "refill":
         global tweet_service
         tweet_service = ArtificialTweetService(time.time())
     tweet_service.add_tweet(
