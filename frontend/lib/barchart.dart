@@ -4,14 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class _BarChart extends StatelessWidget {
-  const _BarChart();
+  final Map<int, int> volumes;
+
+  const _BarChart(this.volumes);
 
   @override
   Widget build(BuildContext context) {
     return BarChart(
       BarChartData(
         borderData: FlBorderData(show: false),
-        barGroups: barGroups(),
+        barGroups: barGroups(volumes),
         gridData: FlGridData(show: false),
         titlesData: FlTitlesData(show: false),
         alignment: BarChartAlignment.spaceAround,
@@ -28,15 +30,15 @@ class _BarChart extends StatelessWidget {
         end: Alignment.topCenter,
       );
 
-  List<BarChartGroupData> barGroups() {
+  List<BarChartGroupData> barGroups(volumes) {
     var rng = Random();
     List<BarChartGroupData> data = [];
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 105; i++) {
       data.add(BarChartGroupData(
-        x: 0,
+        x: i,
         barRods: [
           BarChartRodData(
-            toY: rng.nextDouble() * 20,
+            toY: volumes[i],
             gradient: _barsGradient,
           )
         ],
@@ -47,7 +49,8 @@ class _BarChart extends StatelessWidget {
 }
 
 class BarChartSample3 extends StatefulWidget {
-  const BarChartSample3({super.key});
+  final Map<int, int> volumes;
+  const BarChartSample3({super.key, required this.volumes});
 
   @override
   State<StatefulWidget> createState() => BarChartSample3State();
@@ -56,6 +59,6 @@ class BarChartSample3 extends StatefulWidget {
 class BarChartSample3State extends State<BarChartSample3> {
   @override
   Widget build(BuildContext context) {
-    return _BarChart();
+    return _BarChart(widget.volumes);
   }
 }

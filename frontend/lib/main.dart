@@ -3,6 +3,8 @@ import 'package:frontend/chartbox.dart';
 import 'package:frontend/chatbox.dart';
 import 'package:frontend/livestream.dart';
 
+import 'chatscreen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -18,7 +20,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      routes: {
+        '/': (context) => MyHomePage(title: 'Flutter Demo Home Page'),
+        '/chat': (context) => ChatScreen(title: "CHat"),
+      },
     );
   }
 }

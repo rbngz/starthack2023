@@ -7,7 +7,7 @@ import 'package:video_player/video_player.dart';
 class LiveStream extends StatelessWidget {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    double width = screenSize.width * 0.72;
+    double width = screenSize.width * 0.62;
     double height = screenSize.height * 0.5;
 
     return Container(
@@ -98,10 +98,11 @@ class _PlayVideoFromNetworkState extends State<PlayVideoFromNetwork> {
     // Implement your calls inside these conditions' bodies :
     if (controller.isVideoPlaying && !playing) {
       playing = true;
-      print('video playing');
     } else if (!controller.isVideoPlaying && playing) {
       playing = false;
-      print("video paused");
+    } else if (!controller.isVideoPlaying) {
+      // controller.play();
+      // playing = true;
     }
   }
 }

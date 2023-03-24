@@ -1,17 +1,46 @@
+import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:frontend/barchart.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'linechart.dart';
 
 class ChartBox extends StatefulWidget {
-  const ChartBox({super.key});
+  ChartBox({super.key});
+  Map<int, int> volumes = Map();
+  Map<int, double> sentiments = Map();
+  final channel = WebSocketChannel.connect(
+    Uri.parse('wss://starthack2023-do2kz2npza-uc.a.run.app/ws'),
+  );
+  bool listened = false;
 
   @override
   State<StatefulWidget> createState() {
+    var rng = Random();
+    for (int i = 0; i < 105; i++) {
+      if (i < 25 && i > 18) {
+        volumes[i] = rng.nextInt(50) + 50;
+        sentiments[i] = -(rng.nextDouble() * 0.5) - 0.5;
+      } else if (i < 78 + 15 && i > 72 + 15) {
+        volumes[i] = rng.nextInt(50) + 50;
+        sentiments[i] = rng.nextDouble() * 0.5 + 0.5;
+      } else if (i < 37 && i > 31) {
+        volumes[i] = rng.nextInt(50) + 50;
+        sentiments[i] = rng.nextDouble() * 0.5 + 0.5;
+      } else if (i > 80 + 15) {
+        volumes[i] = 0;
+        sentiments[i] = 0.0;
+      } else {
+        volumes[i] = rng.nextInt(50);
+        sentiments[i] = rng.nextDouble() * 0.5 - 0.25;
+      }
+    }
+    channel.sink.add('Hello!');
+
     return ChartBoxState();
   }
 }
@@ -19,6 +48,19 @@ class ChartBox extends StatefulWidget {
 class ChartBoxState extends State<ChartBox> {
   @override
   Widget build(BuildContext context) {
+    if (!widget.listened) {
+      widget.channel.stream.listen((event) {
+        setState(() {
+          int minute = jsonDecode(event)["aggregation"]["min"];
+          widget.sentiments[minute + 16] =
+              jsonDecode(event)["aggregation"]["running_average_sentiment"];
+          widget.volumes[minute + 16] =
+              jsonDecode(event)["aggregation"]["volume"];
+        });
+      });
+      widget.listened = true;
+    }
+
     Size screenSize = MediaQuery.of(context).size;
     double width = screenSize.width - 40;
     double height = screenSize.height * 0.3;
@@ -56,17 +98,28 @@ class ChartBoxState extends State<ChartBox> {
                     ),
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(
+                        "Twitter Sentiment",
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 28.0),
+                        padding: const EdgeInsets.only(bottom: 48.0),
                         child: SizedBox(
-                          height: height / 3,
-                          child: LineChartSample2(),
+                          height: height / 5,
+                          child:
+                              LineChartSample2(sentiments: widget.sentiments),
                         ),
                       ),
-                      SizedBox(height: height / 3, child: BarChartSample3()),
+                      SizedBox(height: 12),
                       SizedBox(
-                        height: 2,
+                          height: height / 5,
+                          child: BarChartSample3(
+                            volumes: widget.volumes,
+                          )),
+                      SizedBox(
+                        height: 6,
                       ),
                       Row(
                         children: [
@@ -97,7 +150,7 @@ class ChartBoxState extends State<ChartBox> {
                         ],
                       ),
                       SizedBox(
-                        height: 2,
+                        height: 6,
                       ),
                       Row(
                         children: [

@@ -4,7 +4,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class LineChartSample2 extends StatefulWidget {
-  const LineChartSample2({super.key});
+  final Map<int, double> sentiments;
+  const LineChartSample2({super.key, required this.sentiments});
 
   @override
   State<LineChartSample2> createState() => _LineChartSample2State();
@@ -21,27 +22,25 @@ class _LineChartSample2State extends State<LineChartSample2> {
     return Stack(
       children: <Widget>[
         LineChart(
-          mainData(),
+          mainData(widget.sentiments),
         ),
       ],
     );
   }
 
-  LineChartData mainData() {
+  LineChartData mainData(sentiments) {
     return LineChartData(
       gridData: FlGridData(show: false),
       titlesData: FlTitlesData(show: false),
       borderData: FlBorderData(show: false),
       minY: 0,
-      maxY: 6,
+      maxY: 1,
       lineBarsData: [
         LineChartBarData(
           spots: (() {
-            var rng = Random();
-
             List<FlSpot> data = [];
             for (int i = 0; i < 105; i++) {
-              data.add(FlSpot(i.toDouble(), rng.nextDouble() * 6));
+              data.add(FlSpot(i.toDouble(), sentiments[i]));
             }
             return data;
           }()),
